@@ -24,3 +24,7 @@ dist/
 .idea/
 .vscode/
 .DS_Store
+
+# internal tooling, kept locally only
+.claude/
+graphify-out/
