@@ -1,0 +1,86 @@
+/* Midnight: the panel's tokens, light first, then dark twice (system choice and the panel's own switch).
+   Only the panel's colour, type face, shape and material tokens appear here; spacing, sizes and motion stay the
+   panel's. `sudoo-plugin validate` checks the names, the rules and the contrast of text and accent. */
+
+:root {
+  color-scheme: light;
+
+  /* one accent: indigo, and the deeper shade used for text and lines drawn in it */
+  --accent: #3d4fb8;
+  --accent-ink: #2f3d94;
+  --on-accent: #ffffff;
+  --accent-soft: color-mix(in oklab, var(--accent) 9%, var(--surface));
+  --accent-ring: color-mix(in oklab, var(--accent) 30%, transparent);
+
+  /* cool neutrals, a touch of blue in the greys */
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --raised: #eff1f6;
+  --hairline: rgb(20 24 36 / 0.08);
+  --hairline-strong: rgb(20 24 36 / 0.14);
+  --text: #141824;
+  --text-2: #4a5163;
+  --text-3: #646b80;
+  --overlay: rgb(8 10 20 / 0.4);
+
+  /* charts: the accent leads, a quiet teal follows */
+  --series-1: var(--accent);
+  --series-2: #0e7490;
+  --series-grid: rgb(20 24 36 / 0.06);
+
+  /* translucent chrome over a cool page */
+  --material: rgb(247 248 251 / 0.72);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --accent: #9aa8ff;
+    --accent-ink: #b8c2ff;
+    --on-accent: #0d1024;
+    --bg: #0b0e1a;
+    --surface: #10142a;
+    --raised: #181d36;
+    --hairline: rgb(230 232 242 / 0.08);
+    --hairline-strong: rgb(230 232 242 / 0.14);
+    --text: #e6e8f2;
+    --text-2: #a3a8bf;
+    --text-3: #868ca6;
+    --overlay: rgb(3 5 12 / 0.6);
+    --series-2: #5ec4d6;
+    --series-grid: rgb(230 232 242 / 0.06);
+    --shadow-small: none;
+    --shadow-float: 0 12px 32px rgb(0 0 0 / 0.5);
+    --material: rgb(11 14 26 / 0.72);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --accent: #9aa8ff;
+  --accent-ink: #b8c2ff;
+  --on-accent: #0d1024;
+  --bg: #0b0e1a;
+  --surface: #10142a;
+  --raised: #181d36;
+  --hairline: rgb(230 232 242 / 0.08);
+  --hairline-strong: rgb(230 232 242 / 0.14);
+  --text: #e6e8f2;
+  --text-2: #a3a8bf;
+  --text-3: #868ca6;
+  --overlay: rgb(3 5 12 / 0.6);
+  --series-2: #5ec4d6;
+  --series-grid: rgb(230 232 242 / 0.06);
+  --shadow-small: none;
+  --shadow-float: 0 12px 32px rgb(0 0 0 / 0.5);
+  --material: rgb(11 14 26 / 0.72);
+}
+
+/* firmer edges when more contrast is asked for */
+@media (prefers-contrast: more) {
+  :root {
+    --hairline: rgb(20 24 36 / 0.3);
+    --hairline-strong: rgb(20 24 36 / 0.5);
+    --text-3: var(--text-2);
+  }
+}

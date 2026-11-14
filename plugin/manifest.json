@@ -1,0 +1,27 @@
+{
+  "$schema": "https://hub.sudoo.sh/schemas/plugin-manifest-v1.json",
+  "id": "com.example.midnight-theme",
+  "name": "Midnight",
+  "version": "0.1.0",
+  "sdk_version": ">=0.1.0,<1.0.0",
+  "min_sudoo_version": "2.0.0",
+  "author": {
+    "name": "Example Plugins",
+    "url": "https://example.com"
+  },
+  "description": "A calm indigo theme for Sudoo.sh: cool neutrals by day, a deep navy panel by night, and a matching logo and e-mail accent.",
+  "long_description_file": "README.md",
+  "license": "MIT",
+  "type": "theme",
+  "tags": ["theme", "dark", "indigo"],
+  "entry_points": {
+    "sudoo.themes": {
+      "midnight": "example_midnight_theme.plugin:Midnight"
+    }
+  },
+  "settings": [],
+  "permissions": [],
+  "requires": [],
+  "tier": "free",
+  "icon": "src/example_midnight_theme/logo.svg"
+}

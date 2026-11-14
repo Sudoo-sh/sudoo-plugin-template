@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+*.egg-info/
+
+# virtual environments and tool caches
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# built packages (CI keeps them as artifacts and release assets)
+dist/
+*.sudoo
+
+# environment and secrets: never commit keys or tokens
+.env
+.env.*
+*.pem
+*.key
+
+# editors and systems
+.idea/
+.vscode/
+.DS_Store

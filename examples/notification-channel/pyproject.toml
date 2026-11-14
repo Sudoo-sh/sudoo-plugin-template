@@ -1,0 +1,58 @@
+[project]
+name = "sudoo-plugin-webhook-alerts"
+version = "0.1.0"
+description = "Webhook alerts: posts the Sudoo.sh panel's alerts to a chat webhook."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.md"]
+requires-python = ">=3.12"
+dependencies = ["sudoo-plugin-sdk>=0.1.0,<1.0.0"]
+
+[project.entry-points."sudoo.notifications"]
+webhook-alerts = "example_webhook_alerts.plugin:WebhookAlerts"
+
+[build-system]
+requires = ["uv_build>=0.13.8,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "example_webhook_alerts"
+
+[tool.uv.sources]
+sudoo-plugin-sdk = { git = "https://github.com/Sudoo-sh/sudoo-plugin-sdk" }
+
+[dependency-groups]
+dev = [
+    "sudoo-plugin-sdk[test]>=0.1.0,<1.0.0",
+    "black>=26.10.1",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, import order, bugbear, modern syntax, simplifications, security
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "C4", "S", "RUF"]
+ignore = ["E501"]  # black decides line length
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # pytest's assert
+
+[tool.ruff.lint.isort]
+known-first-party = ["example_webhook_alerts"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src", "tests"]
+strict = true

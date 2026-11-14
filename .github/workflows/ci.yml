@@ -1,0 +1,74 @@
+name: CI
+
+# Validate, test and pack every plugin in this repository on each push and pull request.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plugin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        path: [plugin, examples/notification-channel]
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }}
+    env:
+      # Read access to Sudoo-sh/sudoo-plugin-sdk while that repository is private (see README). Not needed once
+      # the SDK is public or on PyPI.
+      SUDOO_SDK_TOKEN: ${{ secrets.SUDOO_SDK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          python-version-file: .python-version
+
+      - name: Access to the SDK repository
+        if: env.SUDOO_SDK_TOKEN != ''
+        run: git config --global url."https://x-access-token:${SUDOO_SDK_TOKEN}@github.com/Sudoo-sh/".insteadOf "https://github.com/Sudoo-sh/"
+
+      - name: Install the SDK and tools
+        run: uv sync
+
+      - name: Lint (ruff)
+        run: uv run ruff check .
+
+      - name: Format (black)
+        run: uv run black --check .
+
+      - name: Type-check (mypy)
+        run: uv run mypy
+
+      - name: Validate (the hub's automated checks)
+        run: uv run sudoo-plugin validate
+
+      - name: Test (against the SDK's fake panel)
+        run: uv run sudoo-plugin test
+
+      - name: Pack
+        run: uv run sudoo-plugin pack
+
+      - name: Keep the package
+        uses: actions/upload-artifact@v7
+        with:
+          name: package-${{ strategy.job-index }}
+          path: ${{ matrix.path }}/dist/*.sudoo
+          if-no-files-found: error
+          retention-days: 14

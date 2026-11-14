@@ -1,0 +1,80 @@
+name: Release
+
+# Push a tag v<version> (the version in plugin/manifest.json) to build the package, publish it to the Sudoo.sh hub
+# (developers.sudoo.sh) when SUDOO_DEVELOPER_TOKEN is set, and attach it to a GitHub release.
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write  # create the GitHub release
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: plugin
+    env:
+      SUDOO_SDK_TOKEN: ${{ secrets.SUDOO_SDK_TOKEN }}
+      SUDOO_DEVELOPER_TOKEN: ${{ secrets.SUDOO_DEVELOPER_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v10
+        with:
+          python-version-file: .python-version
+
+      - name: Access to the SDK repository
+        if: env.SUDOO_SDK_TOKEN != ''
+        run: git config --global url."https://x-access-token:${SUDOO_SDK_TOKEN}@github.com/Sudoo-sh/".insteadOf "https://github.com/Sudoo-sh/"
+
+      - name: Install the SDK and tools
+        run: uv sync
+
+      - name: The tag is the manifest's version
+        run: |
+          version="$(python3 -c 'import json; print(json.load(open("manifest.json"))["version"])')"
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match manifest.json version ${version}."
+            exit 1
+          fi
+
+      - name: Validate and test
+        run: |
+          uv run sudoo-plugin validate
+          uv run sudoo-plugin test
+
+      - name: Pack
+        run: |
+          uv run sudoo-plugin pack
+          cd dist && sha256sum ./*.sudoo > SHA256SUMS && cat SHA256SUMS
+
+      - name: Publish to the Sudoo.sh hub
+        if: env.SUDOO_DEVELOPER_TOKEN != ''
+        run: uv run sudoo-plugin publish dist/*.sudoo
+
+      - name: Publishing skipped
+        if: env.SUDOO_DEVELOPER_TOKEN == ''
+        run: echo "::notice::SUDOO_DEVELOPER_TOKEN is not set; the package is attached to the GitHub release only."
+
+      - name: GitHub release with the package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '$0 ~ "^## \\[?v?"v"\\]?( |$)" {on=1; next} /^## / {on=0} on' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          [ -s "$RUNNER_TEMP/notes.md" ] || echo "Version ${version}." > "$RUNNER_TEMP/notes.md"
+          gh release create "$GITHUB_REF_NAME" dist/*.sudoo dist/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag
