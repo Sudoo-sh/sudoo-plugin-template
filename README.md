@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Sudoo-sh/sudoo-plugin-template/actions/workflows/ci.yml/badge.svg)](https://github.com/Sudoo-sh/sudoo-plugin-template/actions/workflows/ci.yml)
 [![Release](https://github.com/Sudoo-sh/sudoo-plugin-template/actions/workflows/release.yml/badge.svg)](https://github.com/Sudoo-sh/sudoo-plugin-template/actions/workflows/release.yml)
-[![Licence: MIT](https://img.shields.io/badge/licence-MIT-informational)](LICENSE.md)
+[![Licence: MIT-0](https://img.shields.io/badge/licence-MIT--0-informational)](LICENSE.md)
 [![Sudoo.sh plugin](https://img.shields.io/badge/Sudoo.sh-plugin-714b67)](https://developers.sudoo.sh)
 
 Start a plugin for [Sudoo.sh](https://sudoo.sh), the self-hosted panel that runs a live Odoo for every Git branch on
@@ -235,9 +235,10 @@ developers.sudoo.sh; Stripe pays your share (70%) to it directly.
 
 ## Licence
 
-The template is under the **MIT licence** ([LICENSE.md](LICENSE.md)), and so are the two examples. A repository
-made from it is yours: relicense your plugin as you like (change `LICENSE.md` and the manifest's `license`, an SPDX
-expression). The SDK your plugin imports is MIT too, so it does not constrain your choice.
+The template is under **MIT No Attribution** ([LICENSE.md](LICENSE.md)): take it, change it, sell what you build,
+with no notice to keep. Replace `LICENSE.md` and the `license` field of `manifest.json` and `pyproject.toml` with
+your plugin's own licence (any SPDX expression, or `LicenseRef-Proprietary` for a closed paid plugin). The SDK your
+plugin imports is Apache-2.0, which is permissive and does not constrain your choice.
 
 ## Links
 
