@@ -252,6 +252,6 @@ plugin imports is Apache-2.0, which is permissive and does not constrain your ch
 | Account | [app.sudoo.sh](https://app.sudoo.sh) |
 | Hub API | [hub.sudoo.sh](https://hub.sudoo.sh) |
 | Status | [status.sudoo.sh](https://status.sudoo.sh) |
-| Panel source | [github.com/Yosef-AlSabbah/sudoo.sh](https://github.com/Yosef-AlSabbah/sudoo.sh) |
+| Panel source | [github.com/Sudoo-sh/sudoo.sh](https://github.com/Sudoo-sh/sudoo.sh) |
 
-© 2026 Yousef M. Y. Al Sabbah
+© 2026 Sudoo.sh
