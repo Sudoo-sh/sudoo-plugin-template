@@ -24,7 +24,6 @@ jobs:
       run:
         working-directory: plugin
     env:
-      SUDOO_SDK_TOKEN: ${{ secrets.SUDOO_SDK_TOKEN }}
       SUDOO_DEVELOPER_TOKEN: ${{ secrets.SUDOO_DEVELOPER_TOKEN }}
     steps:
       - uses: actions/checkout@v7
@@ -36,11 +35,7 @@ jobs:
         with:
           python-version-file: .python-version
 
-      - name: Access to the SDK repository
-        if: env.SUDOO_SDK_TOKEN != ''
-        run: git config --global url."https://x-access-token:${SUDOO_SDK_TOKEN}@github.com/Sudoo-sh/".insteadOf "https://github.com/Sudoo-sh/"
-
-      - name: Install the SDK and tools
+      - name: Install the SDK (from PyPI) and tools
         run: uv sync
 
       - name: The tag is the manifest's version

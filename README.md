@@ -38,11 +38,10 @@ examples:
 1. On GitHub, click **Use this template**, then **Create a new repository**. Any owner and name work; public or
    private.
 2. Clone it and go through the [renaming checklist](#renaming-checklist).
-3. If the SDK repository is still private, add the `SUDOO_SDK_TOKEN` secret ([below](#the-sdk-dependency)).
-4. Check everything still passes: `cd plugin && uv sync && uv run sudoo-plugin validate && uv run sudoo-plugin test`.
-5. Register as a developer on [developers.sudoo.sh](https://developers.sudoo.sh), and add your developer token to
+3. Check everything still passes: `cd plugin && uv sync && uv run sudoo-plugin validate && uv run sudoo-plugin test`.
+4. Register as a developer on [developers.sudoo.sh](https://developers.sudoo.sh), and add your developer token to
    the repository as the `SUDOO_DEVELOPER_TOKEN` secret (Settings, Secrets and variables, Actions).
-6. Push a tag `v0.1.0` to publish the first version.
+5. Push a tag `v0.1.0` to publish the first version.
 
 ## Renaming checklist
 
@@ -72,23 +71,24 @@ Keep `plugin/` as the folder of your plugin (the workflows build that folder), a
 
 ## The SDK dependency
 
-Each plugin's `pyproject.toml` depends on `sudoo-plugin-sdk` and, until the SDK is on PyPI, takes it from Git:
+Each plugin's `pyproject.toml` depends on the SDK from [PyPI](https://pypi.org/project/sudoo-plugin-sdk/):
+
+```toml
+[project]
+dependencies = ["sudoo-plugin-sdk>=0.1.0,<1.0.0"]
+```
+
+Until the first SDK release is on PyPI, `uv sync` cannot find it there. The CI workflow checks PyPI first and, only
+while the SDK is missing, adds a Git source for that run (nothing is committed); once the SDK is published the same
+workflow uses PyPI without any change. The release workflow always installs the SDK from PyPI, so a plugin release
+waits for the SDK's first release. On your computer, do the same by hand if you need it before then:
 
 ```toml
 [tool.uv.sources]
 sudoo-plugin-sdk = { git = "https://github.com/Sudoo-sh/sudoo-plugin-sdk" }
 ```
 
-**While that repository is private**, `uv` needs a token that can read it:
-
-- *On your computer*: sign in with `gh auth login` (it sets up a Git credential helper), or create a GitHub
-  fine-grained token with read access to the SDK repository's contents and run
-  `git config --global url."https://x-access-token:<token>@github.com/Sudoo-sh/".insteadOf "https://github.com/Sudoo-sh/"`.
-- *In GitHub Actions*: add that token as the `SUDOO_SDK_TOKEN` secret; both workflows use it when it is set.
-
-Once the SDK is public nothing is needed; once it is on PyPI, delete the `[tool.uv.sources]` lines.
-
-**With a local checkout of the SDK** (to try SDK changes, or without access to the repository), either run the
+**With a local checkout of the SDK** (to try SDK changes before they are released), either run the
 command from the SDK checkout without installing the plugin's project:
 
 ```bash
@@ -107,8 +107,8 @@ sudoo-plugin-sdk = { path = "../../sudoo-plugin-sdk", editable = true }
 
 `sudoo-plugin` reads the plugin from `src/`, so validating, testing and packing never need the plugin installed.
 
-There is no `uv.lock` in the template yet: it can be made only where the SDK repository can be read. After your
-first `uv sync`, commit `plugin/uv.lock` and switch the workflows to `uv sync --locked`.
+There is no `uv.lock` in the template: after your first `uv sync`, commit `plugin/uv.lock` and switch the workflows
+to `uv sync --locked`.
 
 ## Develop and test locally
 
@@ -180,7 +180,6 @@ git push origin v0.2.0
 | Secret | Needed for | Where it comes from |
 | :--- | :--- | :--- |
 | `SUDOO_DEVELOPER_TOKEN` | Publishing to the hub | Your developer account on developers.sudoo.sh |
-| `SUDOO_SDK_TOKEN` | Installing the SDK while its repository is private | A GitHub token with read access to `Sudoo-sh/sudoo-plugin-sdk` |
 
 The marketplace never builds from your repository: it receives the packed `.sudoo` file, so the review covers
 exactly what people install.
