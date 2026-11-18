@@ -18,11 +18,6 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "example_midnight_theme"
 
-# The SDK comes from its Git repository until it is on PyPI (see the template's README for access and for using a
-# local checkout instead).
-[tool.uv.sources]
-sudoo-plugin-sdk = { git = "https://github.com/Sudoo-sh/sudoo-plugin-sdk" }
-
 [dependency-groups]
 dev = [
     "sudoo-plugin-sdk[test]>=0.1.0,<1.0.0",

@@ -25,10 +25,6 @@ jobs:
     defaults:
       run:
         working-directory: ${{ matrix.path }}
-    env:
-      # Read access to Sudoo-sh/sudoo-plugin-sdk while that repository is private (see README). Not needed once
-      # the SDK is public or on PyPI.
-      SUDOO_SDK_TOKEN: ${{ secrets.SUDOO_SDK_TOKEN }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -40,9 +36,16 @@ jobs:
           enable-cache: true
           python-version-file: .python-version
 
-      - name: Access to the SDK repository
-        if: env.SUDOO_SDK_TOKEN != ''
-        run: git config --global url."https://x-access-token:${SUDOO_SDK_TOKEN}@github.com/Sudoo-sh/".insteadOf "https://github.com/Sudoo-sh/"
+      # The SDK comes from PyPI. Until its first release is there, this run (and only this run: nothing is
+      # committed) takes it from its Git repository instead; once it is published this step does nothing.
+      - name: The SDK from Git while it is not on PyPI
+        run: |
+          if curl -fsS --retry 3 -o /dev/null https://pypi.org/simple/sudoo-plugin-sdk/; then
+            echo "sudoo-plugin-sdk is on PyPI."
+          else
+            printf '\n[tool.uv.sources]\nsudoo-plugin-sdk = { git = "https://github.com/Sudoo-sh/sudoo-plugin-sdk" }\n' >> pyproject.toml
+            echo "::notice::sudoo-plugin-sdk is not on PyPI yet; this run installs it from GitHub."
+          fi
 
       - name: Install the SDK and tools
         run: uv sync

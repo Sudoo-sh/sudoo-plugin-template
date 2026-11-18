@@ -18,9 +18,6 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "example_webhook_alerts"
 
-[tool.uv.sources]
-sudoo-plugin-sdk = { git = "https://github.com/Sudoo-sh/sudoo-plugin-sdk" }
-
 [dependency-groups]
 dev = [
     "sudoo-plugin-sdk[test]>=0.1.0,<1.0.0",
