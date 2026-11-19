@@ -38,7 +38,8 @@ examples:
 1. On GitHub, click **Use this template**, then **Create a new repository**. Any owner and name work; public or
    private.
 2. Clone it and go through the [renaming checklist](#renaming-checklist).
-3. Check everything still passes: `cd plugin && uv sync && uv run sudoo-plugin validate && uv run sudoo-plugin test`.
+3. Check everything still passes, and commit the updated `plugin/uv.lock`:
+   `cd plugin && uv lock && uv sync && uv run sudoo-plugin validate && uv run sudoo-plugin test`.
 4. Register as a developer on [developers.sudoo.sh](https://developers.sudoo.sh), and add your developer token to
    the repository as the `SUDOO_DEVELOPER_TOKEN` secret (Settings, Secrets and variables, Actions).
 5. Push a tag `v0.1.0` to publish the first version.
@@ -104,8 +105,9 @@ sudoo-plugin-sdk = { path = "../../sudoo-plugin-sdk", editable = true }
 
 `sudoo-plugin` reads the plugin from `src/`, so validating, testing and packing never need the plugin installed.
 
-There is no `uv.lock` in the template: after your first `uv sync`, commit `plugin/uv.lock` and switch the workflows
-to `uv sync --locked`.
+`plugin/uv.lock` pins the SDK and the tools, with their hashes, and both workflows install with `uv sync --locked`,
+so CI and releases run exactly the locked versions. After changing `pyproject.toml` (the renaming checklist
+included), run `uv lock` and commit `uv.lock`; `uv lock --upgrade` moves to newer versions.
 
 ## Develop and test locally
 
@@ -170,7 +172,8 @@ git push origin v0.2.0
 3. **Publishes to the Sudoo.sh hub** when the `SUDOO_DEVELOPER_TOKEN` secret is set: `sudoo-plugin publish`
    uploads the package, the manifest and this version's changelog section to the developer endpoint that
    developers.sudoo.sh uses (a new plugin the first time, a new version afterwards), and prints the automated
-   checks. Without the secret this step is skipped with a notice.
+   checks. Without the secret this step is skipped with a notice. The secret is passed to this step only, never
+   to the steps that install, validate, test or pack.
 4. Creates a GitHub release for the tag with the `.sudoo` file and `SHA256SUMS` attached, and the changelog
    section as its notes.
 

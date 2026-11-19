@@ -23,8 +23,6 @@ jobs:
     defaults:
       run:
         working-directory: plugin
-    env:
-      SUDOO_DEVELOPER_TOKEN: ${{ secrets.SUDOO_DEVELOPER_TOKEN }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -35,8 +33,8 @@ jobs:
         with:
           python-version-file: .python-version
 
-      - name: Install the SDK (from PyPI) and tools
-        run: uv sync
+      - name: Install the SDK (from PyPI) and tools, as locked in uv.lock
+        run: uv sync --locked
 
       - name: The tag is the manifest's version
         run: |
@@ -56,12 +54,21 @@ jobs:
           uv run sudoo-plugin pack
           cd dist && sha256sum ./*.sudoo > SHA256SUMS && cat SHA256SUMS
 
+      # Only whether the token is set, never the token itself, is known to the steps before publishing.
+      - name: Is a hub token set
+        id: hub
+        env:
+          TOKEN_SET: ${{ secrets.SUDOO_DEVELOPER_TOKEN != '' }}
+        run: echo "set=${TOKEN_SET}" >> "$GITHUB_OUTPUT"
+
       - name: Publish to the Sudoo.sh hub
-        if: env.SUDOO_DEVELOPER_TOKEN != ''
-        run: uv run sudoo-plugin publish dist/*.sudoo
+        if: steps.hub.outputs.set == 'true'
+        env:
+          SUDOO_DEVELOPER_TOKEN: ${{ secrets.SUDOO_DEVELOPER_TOKEN }}
+        run: uv run --locked sudoo-plugin publish dist/*.sudoo
 
       - name: Publishing skipped
-        if: env.SUDOO_DEVELOPER_TOKEN == ''
+        if: steps.hub.outputs.set != 'true'
         run: echo "::notice::SUDOO_DEVELOPER_TOKEN is not set; the package is attached to the GitHub release only."
 
       - name: GitHub release with the package
