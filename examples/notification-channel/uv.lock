@@ -793,7 +793,7 @@ wheels = [
 
 [[package]]
 name = "sudoo-plugin-sdk"
-version = "0.1.0"
+version = "0.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
@@ -801,9 +801,9 @@ dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/66/17/5eeafc60244ad7473c76c4afc870a6e6c808ba2d68bce3dc3067018734eb/sudoo_plugin_sdk-0.1.0.tar.gz", hash = "sha256:77de676a61a7c646cad0a3c1c2515c8ace236f0362d2fad4d03fdb65e0bbf607", size = 71236, upload-time = "2026-11-19T06:50:14.834Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/31/22/90863c709d7a870ef0501d5c1b755de72ee05fe928ed5429984cc0dc0deb/sudoo_plugin_sdk-0.1.1.tar.gz", hash = "sha256:aee9d32cb12e941f8bd62504b5d90b5cfeee21d496386513c9180817256639df", size = 73203, upload-time = "2026-11-19T15:09:48.871Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9c/fb/f306f4771118d0622d7c823f2d3b2719d94c72da916c9677f2df325e0ee6/sudoo_plugin_sdk-0.1.0-py3-none-any.whl", hash = "sha256:9c5a91b84bbea53ed935e328e274cf29c8d3ccf7676c8a12ad512341f797d251", size = 71084, upload-time = "2026-11-19T06:50:13.49Z" },
+    { url = "https://files.pythonhosted.org/packages/10/5d/9608fbfe644dea800d77b3c7e7db02ed4eb961fc43fe0216a93407122835/sudoo_plugin_sdk-0.1.1-py3-none-any.whl", hash = "sha256:ecd717a6946a03c3c49da70b9a1bfe94fe4ce180e77387f5f5f6a1a98e612fe4", size = 72893, upload-time = "2026-11-19T15:09:47.562Z" },
 ]
 
 [package.optional-dependencies]
