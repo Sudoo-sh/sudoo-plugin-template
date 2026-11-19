@@ -36,19 +36,8 @@ jobs:
           enable-cache: true
           python-version-file: .python-version
 
-      # The SDK comes from PyPI. Until its first release is there, this run (and only this run: nothing is
-      # committed) takes it from its Git repository instead; once it is published this step does nothing.
-      - name: The SDK from Git while it is not on PyPI
-        run: |
-          if curl -fsS --retry 3 -o /dev/null https://pypi.org/simple/sudoo-plugin-sdk/; then
-            echo "sudoo-plugin-sdk is on PyPI."
-          else
-            printf '\n[tool.uv.sources]\nsudoo-plugin-sdk = { git = "https://github.com/Sudoo-sh/sudoo-plugin-sdk" }\n' >> pyproject.toml
-            echo "::notice::sudoo-plugin-sdk is not on PyPI yet; this run installs it from GitHub."
-          fi
-
-      - name: Install the SDK and tools
-        run: uv sync
+      - name: Install the SDK and tools, as locked in uv.lock
+        run: uv sync --locked
 
       - name: Lint (ruff)
         run: uv run ruff check .
