@@ -78,14 +78,11 @@ Each plugin's `pyproject.toml` depends on the SDK from [PyPI](https://pypi.org/p
 dependencies = ["sudoo-plugin-sdk>=0.1.0,<1.0.0"]
 ```
 
-Until the first SDK release is on PyPI, `uv sync` cannot find it there. The CI workflow checks PyPI first and, only
-while the SDK is missing, adds a Git source for that run (nothing is committed); once the SDK is published the same
-workflow uses PyPI without any change. The release workflow always installs the SDK from PyPI, so a plugin release
-waits for the SDK's first release. On your computer, do the same by hand if you need it before then:
+The SDK is published on PyPI, so `uv sync` installs it from there. To use the `sudoo-plugin` command outside a
+plugin's project, install it on its own:
 
-```toml
-[tool.uv.sources]
-sudoo-plugin-sdk = { git = "https://github.com/Sudoo-sh/sudoo-plugin-sdk" }
+```bash
+pip install sudoo-plugin-sdk          # or: pipx install "sudoo-plugin-sdk[test]"
 ```
 
 **With a local checkout of the SDK** (to try SDK changes before they are released), either run the
