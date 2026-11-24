@@ -40,11 +40,14 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 # pycodestyle, pyflakes, import order, bugbear, modern syntax, simplifications, security
-select = ["E", "W", "F", "I", "B", "UP", "SIM", "C4", "S", "RUF"]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "C4", "S", "RUF", "D"]
 ignore = ["E501"]  # black decides line length
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]  # pytest's assert
+"tests/**" = ["S101", "D417"]  # pytest's assert; parameter sections not required in tests
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.isort]
 known-first-party = ["example_webhook_alerts"]
