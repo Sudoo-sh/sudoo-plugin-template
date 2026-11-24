@@ -126,6 +126,12 @@ uv run sudoo-plugin publish --dry-run   # what a release would send to the hub
 `pack` is reproducible: the same sources give the same bytes, so the SHA-256 printed here is the one the hub will
 list for that version.
 
+### Formatting
+
+Code is formatted with black and linted with ruff (settings in `pyproject.toml`; ruff also sorts imports), and mypy
+checks the types. Run `uv run black .` in `plugin/` or `examples/notification-channel/` to rewrite files, and `uv run black --check .` to check them without changes.
+The same checks run on every commit with pre-commit (run `uvx pre-commit install` once).
+
 ## Writing your plugin
 
 **A theme** (this template's `plugin/`) is data: `tokens.css` sets the panel's own custom properties for light and
