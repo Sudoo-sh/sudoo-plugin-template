@@ -1,0 +1,60 @@
+# Checks run on every commit. Install once: uvx pre-commit install
+default_install_hook_types: [pre-commit]
+# Licences, tool folders, fixtures, generated files and lock files stay as they are.
+exclude: |
+  (?x)^(
+    LICENSE\.md|
+    \.claude/.*|
+    .*fixture.*\.json|
+    tests/fixtures/.*|
+    uv\.lock
+  )$
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: detect-private-key
+
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.10.1
+    hooks:
+      # Two projects, each with its own settings in its pyproject.toml.
+      - id: black
+        name: black (plugin)
+        files: ^plugin/
+        args: [--config, plugin/pyproject.toml]
+      - id: black
+        name: black (examples/notification-channel)
+        files: ^examples/notification-channel/
+        args: [--config, examples/notification-channel/pyproject.toml]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.4
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+
+  - repo: local
+    hooks:
+      - id: mypy-plugin
+        name: mypy (plugin)
+        entry: bash -c 'cd plugin && uv run mypy'
+        language: system
+        files: ^plugin/.*\.py$
+        pass_filenames: false
+      - id: mypy-example
+        name: mypy (examples/notification-channel)
+        entry: bash -c 'cd examples/notification-channel && uv run mypy'
+        language: system
+        files: ^examples/notification-channel/.*\.py$
+        pass_filenames: false
