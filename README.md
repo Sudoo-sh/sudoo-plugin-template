@@ -19,17 +19,150 @@ examples:
 
 ## Contents
 
-1. [Use this template](#use-this-template)
-2. [Renaming checklist](#renaming-checklist)
-3. [The SDK dependency](#the-sdk-dependency)
-4. [Develop and test locally](#develop-and-test-locally)
-5. [Writing your plugin](#writing-your-plugin)
-6. [CI](#ci)
-7. [Releasing and publishing](#releasing-and-publishing)
-8. [The review](#the-review)
-9. [Paid plugins](#paid-plugins)
-10. [Licence](#licence)
-11. [Links](#links)
+1. [Your first plugin in 10 minutes](#your-first-plugin-in-10-minutes)
+2. [Use this template](#use-this-template)
+3. [Renaming checklist](#renaming-checklist)
+4. [The SDK dependency](#the-sdk-dependency)
+5. [Develop and test locally](#develop-and-test-locally)
+6. [Writing your plugin](#writing-your-plugin)
+7. [CI](#ci)
+8. [Releasing and publishing](#releasing-and-publishing)
+9. [The review](#the-review)
+10. [Paid plugins](#paid-plugins)
+11. [Licence](#licence)
+12. [Links](#links)
+
+---
+
+## Your first plugin in 10 minutes
+
+You will turn the Midnight example into your own theme, check it the way the hub will, check that a Sudoo.sh panel
+accepts the package, and see what publishing sends. Every command below was run as written on Linux with uv 0.12,
+SDK 0.1.1 from PyPI and Sudoo.sh 3.6.0. The few steps that could not be run that way are marked **Not verified**.
+
+### 1. Prerequisites
+
+- [git](https://git-scm.com) and [uv](https://docs.astral.sh/uv/getting-started/installation/). uv installs the
+  Python the template asks for (3.14, in `plugin/.python-version`) when your computer does not have it.
+- A GitHub account, for your copy of the template (step 2) and for publishing (step 6).
+
+```bash
+git --version
+uv --version
+```
+
+### 2. Create your repository from the template
+
+On GitHub, open [Sudoo-sh/sudoo-plugin-template](https://github.com/Sudoo-sh/sudoo-plugin-template), click
+**Use this template**, then **Create a new repository**, and clone your new repository. With the GitHub CLI, the
+same in one line (**Not verified**: it creates a repository on your account):
+
+```bash
+gh repo create my-theme --template Sudoo-sh/sudoo-plugin-template --private --clone
+```
+
+To try the steps first without creating anything on GitHub, clone the template itself:
+
+```bash
+git clone https://github.com/Sudoo-sh/sudoo-plugin-template my-theme
+cd my-theme/plugin
+uv sync                        # the SDK from PyPI, pytest, ruff, black and mypy, as locked in uv.lock
+uv run sudoo-plugin test       # "8 passed"
+```
+
+### 3. Edit the one file
+
+A theme is data. The file that makes it yours is
+[`plugin/src/example_midnight_theme/tokens.css`](plugin/src/example_midnight_theme/tokens.css): the panel's colour
+tokens for light mode (`:root`) and for dark mode (the two blocks below it). Open it and change the light accent:
+
+```css
+:root {
+  color-scheme: light;
+  --accent: #0f766e;   /* was #3d4fb8 */
+```
+
+Change any other token the same way; the [SDK's theme guide](https://github.com/Sudoo-sh/sudoo-plugin-sdk#themes)
+lists them all. (The colour of the panel's e-mails is `email_accent` in `plugin.py`, if you want that to match.)
+
+### 4. Run the checks and the tests
+
+In `plugin/`:
+
+```bash
+uv run sudoo-plugin validate   # the hub's automated checks, locally
+uv run sudoo-plugin test       # validate, then tests/ against the SDK's fake panel
+uv run ruff check . && uv run black --check . && uv run mypy
+uv run sudoo-plugin pack       # dist/com.example.midnight-theme-0.1.0.sudoo and its SHA-256
+```
+
+The checks read your colours. A pale accent such as `#9ae6b4` stops `validate` with the reason:
+
+```
+error    sudoo.themes: midnight = example_midnight_theme.plugin:Midnight: light: --on-accent on --accent has a contrast of 1.46:1, below 4.5:1 (WCAG AA for text).
+com.example.midnight-theme 0.1.0: not valid (1 errors, 0 warnings)
+```
+
+### 5. Check the package against a local panel
+
+The panel's own install checks (manifest, Sudoo.sh and SDK versions, dependencies, file types, paths) can be run on
+your package from a checkout of the panel, without installing or running a server. From `my-theme/plugin`:
+
+```bash
+cd ../..                       # the folder that holds my-theme
+git clone --branch v3.6.0 --depth 1 https://github.com/Sudoo-sh/sudoo.sh sudoo-panel
+cd sudoo-panel
+uv sync
+ODOO_ROOT="$(mktemp -d)" uv run python -c '
+import sys, zipfile
+from sudoo import plugin_manager
+manifest = plugin_manager.check_package(zipfile.ZipFile(sys.argv[1]), sys.argv[2], sys.argv[3])
+print("accepted:", manifest["id"], manifest["version"])
+' ../my-theme/plugin/dist/com.example.midnight-theme-0.1.0.sudoo com.example.midnight-theme 0.1.0
+```
+
+It prints `accepted: com.example.midnight-theme 0.1.0`, or the sentence the panel would show when it refuses the
+package. (`ODOO_ROOT` points the panel at an empty temporary folder instead of `/opt/odoo`.) To see that the panel's
+Python finds your plugin's entry point:
+
+```bash
+uv run --with-editable ../my-theme/plugin python -c '
+from importlib.metadata import entry_points
+print([entry.value for entry in entry_points(group="sudoo.themes")])
+'
+```
+
+It prints `['example_midnight_theme.plugin:Midnight']`.
+
+**Not verified: running it in a live panel.** A running panel installs plugins only from the marketplace: the
+package must be signed by the hub (step 6), and a panel refuses unsigned packages, so there is no command to
+side-load a `.sudoo` file. Sudoo.sh 3.6.0 also accepts and registers a theme without applying it yet: themes and the
+other groups `sudoo-plugin validate` calls *planned* arrive with the panel's plugin manager.
+
+### 6. Publish
+
+1. Go through the [renaming checklist](#renaming-checklist): at least the plugin id (`com.example.*` is the
+   example's), the package name, `name`, `description` and `author`. Then `uv lock`, and run step 4 again.
+2. See exactly what a release would send, without sending anything:
+
+   ```bash
+   uv run sudoo-plugin publish --dry-run
+   ```
+
+3. **Not verified** (they create a developer account, a plugin and a release): register on
+   [developers.sudoo.sh](https://developers.sudoo.sh) and submit the first version there (Plugins, New plugin)
+   with the `.sudoo` file from `dist/`. Then add a developer API token as the repository secret
+   `SUDOO_DEVELOPER_TOKEN`. From then on the [release workflow](#releasing-and-publishing) publishes each new
+   version when you push its tag, after raising `version` in `manifest.json` and `pyproject.toml` and adding its
+   section to `CHANGELOG.md`:
+
+   ```bash
+   git tag v0.2.0
+   git push origin v0.2.0
+   ```
+
+After the [review](#the-review), the hub signs the package and lists it on marketplace.sudoo.sh, and panels can
+install it from their **Plugins** page.
 
 ---
 
@@ -40,9 +173,11 @@ examples:
 2. Clone it and go through the [renaming checklist](#renaming-checklist).
 3. Check everything still passes, and commit the updated `plugin/uv.lock`:
    `cd plugin && uv lock && uv sync && uv run sudoo-plugin validate && uv run sudoo-plugin test`.
-4. Register as a developer on [developers.sudoo.sh](https://developers.sudoo.sh), and add your developer token to
-   the repository as the `SUDOO_DEVELOPER_TOKEN` secret (Settings, Secrets and variables, Actions).
-5. Push a tag `v0.1.0` to publish the first version.
+4. Register as a developer on [developers.sudoo.sh](https://developers.sudoo.sh), submit the first version there
+   (Plugins, New plugin) with the package from `uv run sudoo-plugin pack`, and add a developer API token to the
+   repository as the `SUDOO_DEVELOPER_TOKEN` secret (Settings, Secrets and variables, Actions).
+5. Push a tag such as `v0.2.0` to publish each later version (an API token sends new versions of your plugins only;
+   the first version is submitted on the website).
 
 ## Renaming checklist
 
@@ -66,6 +201,8 @@ Keep `plugin/` as the folder of your plugin (the workflows build that folder), a
 - [ ] **CHANGELOG.md** in `plugin/`: one `## <version>` section per release (the release notes and the hub's
       "what changed" come from it).
 - [ ] **LICENSE.md** in `plugin/` and at the root: your name, or another licence (and the manifest's `license`).
+- [ ] **Python**: to move to another Python, change `.python-version` at the root (CI reads it) and in `plugin/`
+      (uv reads it) together.
 - [ ] **Badges** at the top of your README: replace `Sudoo-sh/sudoo-plugin-template` with your repository.
 - [ ] **Examples**: delete `examples/` when you no longer need it, and remove it from the `matrix` in
       `.github/workflows/ci.yml`.
@@ -111,7 +248,9 @@ included), run `uv lock` and commit `uv.lock`; `uv lock --upgrade` moves to newe
 
 ## Develop and test locally
 
-You need [uv](https://docs.astral.sh/uv/); it installs Python 3.14 (`.python-version`) by itself.
+You need [uv](https://docs.astral.sh/uv/); it installs Python 3.14 by itself. uv reads `.python-version` from
+the plugin's own folder (it does not look above the folder of `pyproject.toml`), so each plugin folder has its own
+copy, kept equal to the one at the root that CI reads; `tests/test_project.py` checks that they agree.
 
 ```bash
 cd plugin
@@ -177,8 +316,8 @@ git push origin v0.2.0
 2. Validates, tests and packs `plugin/`, and writes `SHA256SUMS`.
 3. **Publishes to the Sudoo.sh hub** when the `SUDOO_DEVELOPER_TOKEN` secret is set: `sudoo-plugin publish`
    uploads the package, the manifest and this version's changelog section to the developer endpoint that
-   developers.sudoo.sh uses (a new plugin the first time, a new version afterwards), and prints the automated
-   checks. Without the secret this step is skipped with a notice. The secret is passed to this step only, never
+   developers.sudoo.sh uses, as a new version of a plugin you already submitted there, and prints the automated
+   checks. (A developer API token sends new versions only: submit the first version on developers.sudoo.sh.) Without the secret this step is skipped with a notice. The secret is passed to this step only, never
    to the steps that install, validate, test or pack.
 4. Creates a GitHub release for the tag with the `.sudoo` file and `SHA256SUMS` attached, and the changelog
    section as its notes.
