@@ -317,8 +317,9 @@ git push origin v0.2.0
 3. **Publishes to the Sudoo.sh hub** when the `SUDOO_DEVELOPER_TOKEN` secret is set: `sudoo-plugin publish`
    uploads the package, the manifest and this version's changelog section to the developer endpoint that
    developers.sudoo.sh uses, as a new version of a plugin you already submitted there, and prints the automated
-   checks. (A developer API token sends new versions only: submit the first version on developers.sudoo.sh.) Without the secret this step is skipped with a notice. The secret is passed to this step only, never
-   to the steps that install, validate, test or pack.
+   checks. A developer API token sends new versions only: submit the first version on developers.sudoo.sh.
+   Without the secret this step is skipped with a notice. The secret is passed to this step only, never to the
+   steps that install, validate, test or pack.
 4. Creates a GitHub release for the tag with the `.sudoo` file and `SHA256SUMS` attached, and the changelog
    section as its notes.
 
