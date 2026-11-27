@@ -39,6 +39,8 @@ examples:
 You will turn the Midnight example into your own theme, check it the way the hub will, check that a Sudoo.sh panel
 accepts the package, and see what publishing sends. Every command below was run as written on Linux with uv 0.12,
 SDK 0.1.1 from PyPI and Sudoo.sh 3.6.0. The few steps that could not be run that way are marked **Not verified**.
+The ten minutes are your time: the first `uv sync` of the plugin and of the panel downloads Python and the
+packages, which on a slow connection takes longer than the rest.
 
 ### 1. Prerequisites
 
