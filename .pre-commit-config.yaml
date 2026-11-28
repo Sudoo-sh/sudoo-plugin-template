@@ -58,3 +58,11 @@ repos:
         language: system
         files: ^examples/notification-channel/.*\.py$
         pass_filenames: false
+
+  # Docstring coverage: every module, class and function needs a docstring (at least 90% overall).
+  - repo: https://github.com/econchick/interrogate
+    rev: 1.7.0
+    hooks:
+      - id: interrogate
+        args: [--fail-under=90, --verbose, plugin/src, plugin/tests, examples/notification-channel/src, examples/notification-channel/tests]
+        pass_filenames: false
