@@ -23,14 +23,15 @@ examples:
 2. [Use this template](#use-this-template)
 3. [Renaming checklist](#renaming-checklist)
 4. [The SDK dependency](#the-sdk-dependency)
-5. [Develop and test locally](#develop-and-test-locally)
-6. [Writing your plugin](#writing-your-plugin)
-7. [CI](#ci)
-8. [Releasing and publishing](#releasing-and-publishing)
-9. [The review](#the-review)
-10. [Paid plugins](#paid-plugins)
-11. [Licence](#licence)
-12. [Links](#links)
+5. [How this code is organised](#how-this-code-is-organised)
+6. [Develop and test locally](#develop-and-test-locally)
+7. [Writing your plugin](#writing-your-plugin)
+8. [CI](#ci)
+9. [Releasing and publishing](#releasing-and-publishing)
+10. [The review](#the-review)
+11. [Paid plugins](#paid-plugins)
+12. [Licence](#licence)
+13. [Links](#links)
 
 ---
 
@@ -247,6 +248,19 @@ sudoo-plugin-sdk = { path = "../../sudoo-plugin-sdk", editable = true }
 `plugin/uv.lock` pins the SDK and the tools, with their hashes, and both workflows install with `uv sync --locked`,
 so CI and releases run exactly the locked versions. After changing `pyproject.toml` (the renaming checklist
 included), run `uv lock` and commit `uv.lock`; `uv lock --upgrade` moves to newer versions.
+
+## How this code is organised
+
+| Path | What lives there |
+| :--- | :--- |
+| `plugin/` | The plugin the release workflow publishes (the Midnight theme). Rename and edit this one. |
+| `plugin/manifest.json` | The plugin's identity, version, group and permissions, read by the hub and the panel. |
+| `plugin/src/example_midnight_theme/` | The theme: `plugin.py` (the `Theme` class), `tokens.css` and `logo.svg`. |
+| `plugin/tests/` | Tests against the SDK's fake panel, and a check that the Python versions agree. |
+| `examples/notification-channel/` | A second, complete plugin with Python code, settings and a permission, to copy from. |
+| `.github/workflows/` | CI on every push, and the release that publishes on a version tag. |
+
+Each plugin folder is its own uv project, with its own `pyproject.toml`, `uv.lock` and `.python-version`.
 
 ## Develop and test locally
 
